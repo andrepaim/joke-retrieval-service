@@ -46,7 +46,7 @@ echo -e "${GREEN}Database initialized!${NC}"
 
 # Load sample data
 echo -e "${YELLOW}Loading sample data...${NC}"
-poetry run python -m app.utils.data_loader data/sample_jokes.json
+poetry run python -m app.utils.data_loader data/puns.json
 echo -e "${GREEN}Sample data loaded!${NC}"
 
 echo -e "${GREEN}Setup complete! You can now run the service with:${NC}"
