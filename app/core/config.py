@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "joke_service")
     DATABASE_URI: Optional[PostgresDsn] = None
     
+    # Chroma settings
+    CHROMA_PERSIST_DIRECTORY: str = os.getenv("CHROMA_PERSIST_DIRECTORY", "chroma_db")
+    
     # Vector search
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"  # Default SentenceTransformers model
     VECTOR_SIMILARITY_THRESHOLD: float = 0.6

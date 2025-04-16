@@ -67,3 +67,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Follow class-based design pattern for services and utilities
 - New features should include corresponding unit tests
 - Import order: stdlib → third-party → local modules (handled by isort)
+
+## Testing and Development Approach
+- Test-Driven Development (TDD) must be followed for all new features
+- Test coverage reports generated during CI
+- Always write tests first, then implement the feature
+- Tests should verify behavior, not implementation details
+- Focus on writing high-quality tests that provide actual value
+- Avoid writing code that only aims to pass tests without proper implementation
+- Maintain high test coverage (aim for >90% line coverage)
+- Tests should be meaningful and verify actual business requirements

@@ -5,8 +5,9 @@ A Python gRPC service for retrieving jokes based on vector similarity search.
 ## Features
 
 - gRPC API for joke retrieval and feedback
-- Vector embedding and similarity search using sentence-transformers and PostgreSQL pgvector
-- PostgreSQL database with pgvector support
+- Vector embedding and similarity search using sentence-transformers and Chroma
+- PostgreSQL database for relational data storage
+- Chroma vector database for fast and efficient similarity search
 - User feedback collection to improve joke recommendations
 - Clarification prompts for ambiguous queries
 
@@ -17,9 +18,8 @@ This service uses:
 - **Python 3.9+** as the core language
 - **gRPC** for API communication
 - **sentence-transformers** for text embeddings
-- **PostgreSQL with pgvector** for vector similarity search
-- **SQLAlchemy** with PostgreSQL for data storage
-- **pgvector** for database vector operations
+- **Chroma** for vector similarity search
+- **SQLAlchemy** with PostgreSQL for relational data storage
 - **Poetry** for dependency management
 - **Docker** for containerization
 - **Alembic** for database migrations
@@ -54,7 +54,7 @@ joke-retrieval-service/
 
 - Python 3.9+
 - Poetry (dependency management)
-- PostgreSQL with pgvector extension (or Docker)
+- PostgreSQL (or Docker)
 - Make (optional, for running commands)
 
 ### Quick Start
@@ -161,7 +161,7 @@ The project includes a Makefile with all common commands:
    docker-compose up --build
    ```
 
-This will set up PostgreSQL with pgvector, initialize the database, load sample data, and start the service.
+This will set up PostgreSQL and Chroma vector database, initialize the database, load sample data, and start the service.
 
 ### Running the Service
 

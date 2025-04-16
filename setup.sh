@@ -34,6 +34,11 @@ echo -e "${YELLOW}Generating gRPC code...${NC}"
 poetry run python -m app.main generate-proto
 echo -e "${GREEN}gRPC code generated!${NC}"
 
+# Create Chroma directory
+echo -e "${YELLOW}Creating Chroma vector database directory...${NC}"
+mkdir -p chroma_db
+echo -e "${GREEN}Chroma directory created!${NC}"
+
 # Initialize database
 echo -e "${YELLOW}Initializing database...${NC}"
 poetry run python -m app.main init-database

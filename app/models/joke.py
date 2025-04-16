@@ -5,9 +5,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, Table,
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-# Using pgvector extension
-from pgvector.sqlalchemy import Vector
-
 Base = declarative_base()
 
 # Association table for many-to-many relationship between jokes and tags
@@ -26,7 +23,7 @@ class Joke(Base):
     text = Column(String, nullable=False)
     category = Column(String, nullable=False)
     source = Column(String, nullable=True)
-    embedding = Column(Vector(384), nullable=True)  # Using SentenceTransformers default dim
+    embedding_id = Column(String, nullable=True)  # Chroma document ID for this joke
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -64,7 +61,7 @@ class QueryLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     query = Column(String, nullable=False)
     context = Column(String, nullable=True)
-    embedding = Column(Vector(384), nullable=True)  # Using SentenceTransformers default dim
+    embedding_id = Column(String, nullable=True)  # Chroma document ID for this query
     clarification_needed = Column(Boolean, default=False)
     selected_joke_id = Column(Integer, ForeignKey("jokes.id"), nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)

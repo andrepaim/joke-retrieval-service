@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: ankane/pgvector:latest
+    image: postgres:latest
     container_name: joke_service_db
     environment:
       - POSTGRES_USER=postgres
@@ -31,6 +31,7 @@ services:
       - POSTGRES_DB=joke_service
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50051
+      - CHROMA_PERSIST_DIRECTORY=/app/chroma_db
     ports:
       - "50051:50051"  # gRPC
     command: >
@@ -39,8 +40,10 @@ services:
              python -m app.main start-server"
     volumes:
       - ./:/app
+      - chroma_data:/app/chroma_db
       - poetry_cache:/root/.cache/pypoetry
 
 volumes:
   postgres_data:
+  chroma_data:
   poetry_cache:

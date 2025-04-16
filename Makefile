@@ -67,6 +67,7 @@ generate-proto:
 
 # Initialize database
 init-db:
+	mkdir -p chroma_db
 	poetry run python -m app.main init-database
 
 # Load sample data

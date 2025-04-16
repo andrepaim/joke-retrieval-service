@@ -60,8 +60,20 @@ def import_jokes(json_file: str, regenerate_embeddings: bool = True) -> None:
                 
                 # Regenerate embedding if requested
                 if regenerate_embeddings:
-                    embedding = embedding_service.create_embedding(existing_joke.text)
-                    existing_joke.embedding = embedding.tolist()
+                    # Delete old embedding if it exists in Chroma
+                    if existing_joke.embedding_id:
+                        try:
+                            embedding_service.joke_collection.delete(ids=[existing_joke.embedding_id])
+                        except Exception as e:
+                            logger.warning(f"Could not delete old embedding: {e}")
+                    
+                    # Create new embedding in Chroma
+                    embedding_id = embedding_service.add_joke_to_chroma(
+                        joke_id=existing_joke.id,
+                        text=existing_joke.text,
+                        metadata={"category": existing_joke.category}
+                    )
+                    existing_joke.embedding_id = embedding_id
                 
                 # Update tags
                 if "tags" in joke_data:
@@ -80,14 +92,24 @@ def import_jokes(json_file: str, regenerate_embeddings: bool = True) -> None:
             else:
                 # Create new joke
                 logger.info(f"Adding new joke: {joke_data['text'][:50]}...")
-                embedding = embedding_service.create_embedding(joke_data["text"])
                 
                 joke = Joke(
                     text=joke_data["text"],
                     category=joke_data.get("category", "general"),
-                    source=joke_data.get("source"),
-                    embedding=embedding.tolist()
+                    source=joke_data.get("source")
                 )
+                
+                # Add to database first to get ID
+                db.add(joke)
+                db.flush()
+                
+                # Now add to Chroma and store the document ID
+                embedding_id = embedding_service.add_joke_to_chroma(
+                    joke_id=joke.id,
+                    text=joke_data["text"],
+                    metadata={"category": joke_data.get("category", "general")}
+                )
+                joke.embedding_id = embedding_id
                 
                 # Add tags
                 if "tags" in joke_data:
