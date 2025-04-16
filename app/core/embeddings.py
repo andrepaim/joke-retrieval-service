@@ -32,18 +32,6 @@ class EmbeddingService:
         """
         return self.model.encode(text)
     
-    def update_index(self, jokes: List[Joke]) -> None:
-        """
-        No-op function for backwards compatibility.
-        Previously used to update FAISS index, now using pgvector directly.
-        
-        Args:
-            jokes: List of Joke objects with embeddings
-        """
-        # No longer needed as we're using pgvector for searching
-        # Kept for API compatibility
-        logger.info("Using pgvector for vector search - no index update needed")
-        return
     
     def search(self, query_embedding: np.ndarray, k: int = 5) -> List[Tuple[int, float]]:
         """

@@ -27,22 +27,6 @@ class TestEmbeddingService(unittest.TestCase):
         self.assertIsInstance(embedding, np.ndarray)
         self.assertEqual(embedding.shape[0], self.embedding_service.embedding_dim)
     
-    def test_update_index(self):
-        """Test updating the index is now a no-op but maintains API compatibility."""
-        # Create mock jokes
-        jokes = []
-        for i in range(5):
-            embedding = np.random.randn(self.embedding_service.embedding_dim).astype(np.float32)
-            joke = Joke(id=i, text=f"Test joke {i}", category="test", embedding=embedding)
-            jokes.append(joke)
-        
-        # Test that update_index runs without error (should be a no-op now)
-        try:
-            self.embedding_service.update_index(jokes)
-            # If we get here, the test passed
-            self.assertTrue(True)
-        except Exception as e:
-            self.fail(f"update_index raised exception {e}")
     
     @patch('app.core.embeddings.SessionLocal')
     def test_search(self, mock_session_local):

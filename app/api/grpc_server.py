@@ -288,7 +288,6 @@ class JokeServicer:
             db.commit()
             db.refresh(joke)
             
-            # No need to update embedding index as we're using pgvector directly
             
             # Convert tags to string list for response
             response_tag_names = [tag.name for tag in joke.tags]
