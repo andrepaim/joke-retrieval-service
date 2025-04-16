@@ -27,7 +27,7 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
         self.embedding_service = EmbeddingService()
         logger.info("JokeServicer initialized with pgvector for vector search")
     
-    async def GetJoke(self, request, context):
+    def GetJoke(self, request, context):
         """
         Get a single joke based on query and context.
         
@@ -91,10 +91,16 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
             db.commit()
             
             # Determine if clarification is needed
+            # Only request clarification if the score is very low AND we actually found a joke
             is_clarification_needed = score < settings.VECTOR_SIMILARITY_THRESHOLD
             clarification_prompt = None
-            if is_clarification_needed:
-                clarification_prompt = "Your request was a bit ambiguous. Could you be more specific about the kind of joke you want?"
+            if is_clarification_needed and joke:
+                # Check if joke contains the query term
+                if query.lower() in joke.text.lower():
+                    # If the joke contains the query term, it's likely relevant despite low score
+                    is_clarification_needed = False
+                else:
+                    clarification_prompt = "Your request was a bit ambiguous. Could you be more specific about the kind of joke you want?"
             
             # Convert tags to string list
             tag_names = [tag.name for tag in joke.tags]
@@ -123,7 +129,7 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
         finally:
             db.close()
     
-    async def GetJokes(self, request, context):
+    def GetJokes(self, request, context):
         """
         Get multiple jokes based on query and context.
         
@@ -171,6 +177,9 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
             for joke in jokes:
                 score = id_to_score.get(joke.id, 0.0)
                 is_clarification_needed = score < settings.VECTOR_SIMILARITY_THRESHOLD
+                # Check if joke contains the query term - if so, it's likely relevant despite low score
+                if query.lower() in joke.text.lower():
+                    is_clarification_needed = False
                 
                 tag_names = [tag.name for tag in joke.tags]
                 
@@ -229,7 +238,7 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
         finally:
             db.close()
     
-    async def RecordFeedback(self, request, context):
+    def RecordFeedback(self, request, context):
         """
         Record user feedback for a joke.
         
@@ -271,7 +280,7 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
         finally:
             db.close()
     
-    async def AddJoke(self, request, context):
+    def AddJoke(self, request, context):
         """
         Add a new joke to the database.
         

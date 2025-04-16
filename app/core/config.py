@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     
     # Vector search
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"  # Default SentenceTransformers model
-    VECTOR_SIMILARITY_THRESHOLD: float = 0.6
+    VECTOR_SIMILARITY_THRESHOLD: float = 0.05
     
     # gRPC server
     GRPC_HOST: str = os.getenv("GRPC_HOST", "0.0.0.0")
