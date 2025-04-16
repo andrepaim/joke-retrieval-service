@@ -5,12 +5,11 @@ from typing import List, Optional
 
 import grpc
 
-# Import the generated protobuf code (will be generated later)
-# from proto import joke_service_pb2 as pb2
-# from proto import joke_service_pb2_grpc as pb2_grpc
+# Import the generated protobuf code
+import joke_service_pb2 as pb2
+import joke_service_pb2_grpc as pb2_grpc
 
-# This is a placeholder import that we'll uncomment after generating the protobuf code
-# For now, we'll implement the service using the expected interface
+# Now we're using the actual generated protobuf code
 
 from app.core.config import settings
 from app.core.embeddings import EmbeddingService
@@ -20,7 +19,7 @@ from app.models.joke import Joke, Tag, JokeFeedback, QueryLog
 logger = logging.getLogger(__name__)
 
 
-class JokeServicer:
+class JokeServicer(pb2_grpc.JokeServiceServicer):
     """Implementation of the JokeService gRPC service."""
     
     def __init__(self):
@@ -353,40 +352,38 @@ class JokeServicer:
     # These will be replaced with actual protobuf objects after generating the code
     
     def _create_joke_response(self, id, text, category, tags, relevance_score, is_clarification_needed, clarification_prompt=None):
-        """Create a placeholder for JokeResponse."""
-        # This is a placeholder that will be replaced with actual protobuf objects
-        return {
-            "id": id,
-            "text": text,
-            "category": category,
-            "tags": tags,
-            "relevance_score": relevance_score,
-            "is_clarification_needed": is_clarification_needed,
-            "clarification_prompt": clarification_prompt
-        }
+        """Create a JokeResponse protobuf object."""
+        response = pb2.JokeResponse(
+            id=id,
+            text=text,
+            category=category,
+            tags=tags,
+            relevance_score=relevance_score,
+            is_clarification_needed=is_clarification_needed
+        )
+        if clarification_prompt:
+            response.clarification_prompt = clarification_prompt
+        return response
     
     def _create_jokes_response(self, jokes):
-        """Create a placeholder for JokesResponse."""
-        # This is a placeholder that will be replaced with actual protobuf objects
-        return {
-            "jokes": jokes
-        }
+        """Create a JokesResponse protobuf object."""
+        response = pb2.JokesResponse(jokes=jokes)
+        return response
     
     def _create_feedback_response(self, success, message=None):
-        """Create a placeholder for FeedbackResponse."""
-        # This is a placeholder that will be replaced with actual protobuf objects
-        return {
-            "success": success,
-            "message": message
-        }
+        """Create a FeedbackResponse protobuf object."""
+        response = pb2.FeedbackResponse(success=success)
+        if message:
+            response.message = message
+        return response
 
 
 def serve():
     """Start the gRPC server."""
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     
-    # This will be uncommented after generating the protobuf code
-    # pb2_grpc.add_JokeServiceServicer_to_server(JokeServicer(), server)
+    # Add the servicer to the server
+    pb2_grpc.add_JokeServiceServicer_to_server(JokeServicer(), server)
     
     server.add_insecure_port(f"{settings.GRPC_HOST}:{settings.GRPC_PORT}")
     server.start()

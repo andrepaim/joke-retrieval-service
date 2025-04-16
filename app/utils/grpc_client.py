@@ -5,9 +5,9 @@ import sys
 
 import grpc
 
-# This is a placeholder import that will be uncommented after generating the protobuf code
-# from proto import joke_service_pb2 as pb2
-# from proto import joke_service_pb2_grpc as pb2_grpc
+# Import the generated protobuf code
+import joke_service_pb2 as pb2
+import joke_service_pb2_grpc as pb2_grpc
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,8 +25,7 @@ class JokeClient:
             port: Server port
         """
         self.channel = grpc.insecure_channel(f"{host}:{port}")
-        # This will be uncommented after generating the protobuf code
-        # self.stub = pb2_grpc.JokeServiceStub(self.channel)
+        self.stub = pb2_grpc.JokeServiceStub(self.channel)
     
     def get_joke(self, query: str, context: str = None) -> None:
         """
@@ -37,18 +36,16 @@ class JokeClient:
             context: Optional context information
         """
         try:
-            # This is a placeholder implementation
             logger.info(f"Requesting joke with query: {query}")
-            # Uncomment after generating protobuf code
-            # request = pb2.JokeRequest(query=query, context=context)
-            # response = self.stub.GetJoke(request)
-            # print(f"Joke: {response.text}")
-            # print(f"Category: {response.category}")
-            # print(f"Tags: {', '.join(response.tags)}")
-            # print(f"Relevance: {response.relevance_score:.2f}")
-            # 
-            # if response.is_clarification_needed:
-            #     print(f"Clarification needed: {response.clarification_prompt}")
+            request = pb2.JokeRequest(query=query, context=context)
+            response = self.stub.GetJoke(request)
+            print(f"Joke: {response.text}")
+            print(f"Category: {response.category}")
+            print(f"Tags: {', '.join(response.tags)}")
+            print(f"Relevance: {response.relevance_score:.2f}")
+            
+            if response.is_clarification_needed:
+                print(f"Clarification needed: {response.clarification_prompt}")
         except Exception as e:
             logger.error(f"Error getting joke: {e}")
     
@@ -62,18 +59,16 @@ class JokeClient:
             max_results: Maximum number of jokes to return
         """
         try:
-            # This is a placeholder implementation
             logger.info(f"Requesting {max_results} jokes with query: {query}")
-            # Uncomment after generating protobuf code
-            # request = pb2.JokeRequest(query=query, context=context, max_results=max_results)
-            # response = self.stub.GetJokes(request)
-            # 
-            # print(f"Found {len(response.jokes)} jokes:")
-            # for i, joke in enumerate(response.jokes, 1):
-            #     print(f"\n{i}. {joke.text}")
-            #     print(f"   Category: {joke.category}")
-            #     print(f"   Tags: {', '.join(joke.tags)}")
-            #     print(f"   Relevance: {joke.relevance_score:.2f}")
+            request = pb2.JokeRequest(query=query, context=context, max_results=max_results)
+            response = self.stub.GetJokes(request)
+            
+            print(f"Found {len(response.jokes)} jokes:")
+            for i, joke in enumerate(response.jokes, 1):
+                print(f"\n{i}. {joke.text}")
+                print(f"   Category: {joke.category}")
+                print(f"   Tags: {', '.join(joke.tags)}")
+                print(f"   Relevance: {joke.relevance_score:.2f}")
         except Exception as e:
             logger.error(f"Error getting jokes: {e}")
     
@@ -87,14 +82,12 @@ class JokeClient:
             feedback_text: Optional text feedback
         """
         try:
-            # This is a placeholder implementation
             logger.info(f"Recording feedback for joke {joke_id}: {'liked' if liked else 'disliked'}")
-            # Uncomment after generating protobuf code
-            # request = pb2.FeedbackRequest(joke_id=joke_id, liked=liked, feedback_text=feedback_text)
-            # response = self.stub.RecordFeedback(request)
-            # print(f"Feedback recorded: {response.success}")
-            # if response.message:
-            #     print(f"Message: {response.message}")
+            request = pb2.FeedbackRequest(joke_id=joke_id, liked=liked, feedback_text=feedback_text)
+            response = self.stub.RecordFeedback(request)
+            print(f"Feedback recorded: {response.success}")
+            if response.message:
+                print(f"Message: {response.message}")
         except Exception as e:
             logger.error(f"Error recording feedback: {e}")
     
@@ -109,12 +102,10 @@ class JokeClient:
             source: Optional source information
         """
         try:
-            # This is a placeholder implementation
             logger.info(f"Adding new joke: {text[:50]}...")
-            # Uncomment after generating protobuf code
-            # request = pb2.AddJokeRequest(text=text, category=category, tags=tags, source=source)
-            # response = self.stub.AddJoke(request)
-            # print(f"Joke added with ID: {response.id}")
+            request = pb2.AddJokeRequest(text=text, category=category, tags=tags, source=source)
+            response = self.stub.AddJoke(request)
+            print(f"Joke added with ID: {response.id}")
         except Exception as e:
             logger.error(f"Error adding joke: {e}")
 
