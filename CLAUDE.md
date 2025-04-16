@@ -44,11 +44,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Add dependency: `poetry add package-name`
 - Add dev dependency: `poetry add --group dev package-name`
 
-## Database Migration Commands
-- Initialize migrations: `poetry run alembic init migrations`
-- Create a new migration: `poetry run alembic revision --autogenerate -m "description"`
-- Apply migrations: `poetry run alembic upgrade head`
-- Rollback one migration: `poetry run alembic downgrade -1`
 
 ## Docker Commands
 - Build and start containers: `docker-compose up --build`

@@ -22,7 +22,6 @@ This service uses:
 - **SQLAlchemy** with PostgreSQL for relational data storage
 - **Poetry** for dependency management
 - **Docker** for containerization
-- **Alembic** for database migrations
 - **Make** for task automation
 
 ## Project Structure
@@ -36,11 +35,9 @@ joke-retrieval-service/
 │   ├── models/         # SQLAlchemy models
 │   └── utils/          # Utility functions
 ├── data/               # Sample data
-├── migrations/         # Alembic database migrations
 ├── proto/              # Protocol Buffer definitions
 ├── tests/              # Unit and integration tests
 ├── .env.example        # Environment variables example
-├── alembic.ini         # Alembic configuration
 ├── docker-compose.yml  # Docker Compose configuration
 ├── Dockerfile          # Docker configuration
 ├── Makefile            # Task automation
@@ -264,17 +261,6 @@ To add a development dependency:
 poetry add --group dev package-name
 ```
 
-### Database Migrations
-
-Create a new migration after model changes:
-```
-make migrations MESSAGE="Add new field to Joke model"
-```
-
-Apply migrations:
-```
-make migrate-up
-```
 
 ### Testing
 

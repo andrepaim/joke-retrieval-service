@@ -1,4 +1,4 @@
-.PHONY: help install clean lint format typecheck test test-cov generate-proto init-db load-data start start-grpc client migrations migrate-up migrate-down docker-build docker-up docker-down docker-logs docker-shell setup
+.PHONY: help install clean lint format typecheck test test-cov generate-proto init-db load-data start start-grpc client docker-build docker-up docker-down docker-logs docker-shell setup
 
 # Default target executed when no arguments are given to make.
 help:
@@ -16,9 +16,6 @@ help:
 	@echo "  make start           - Start the gRPC server"
 	@echo ""
 	@echo "  make client QUERY=\"joke about science\" - Run client with a query"
-	@echo "  make migrations      - Create a new migration (use MESSAGE=... for description)"
-	@echo "  make migrate-up      - Apply migrations"
-	@echo "  make migrate-down    - Roll back one migration"
 	@echo "  make docker-build    - Build Docker images"
 	@echo "  make docker-up       - Start Docker containers"
 	@echo "  make docker-down     - Stop Docker containers"
@@ -87,21 +84,6 @@ client:
 	fi
 	poetry run python -m app.utils.grpc_client get "$(QUERY)"
 
-# Create a new migration
-migrations:
-	@if [ -z "$(MESSAGE)" ]; then \
-		echo "Please provide a migration message using MESSAGE=..."; \
-		exit 1; \
-	fi
-	poetry run alembic revision --autogenerate -m "$(MESSAGE)"
-
-# Apply migrations
-migrate-up:
-	poetry run alembic upgrade head
-
-# Roll back one migration
-migrate-down:
-	poetry run alembic downgrade -1
 
 # Docker commands
 docker-build:
