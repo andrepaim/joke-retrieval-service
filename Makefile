@@ -12,7 +12,7 @@ help:
 	@echo "  make test-cov        - Run tests with coverage"
 	@echo "  make generate-proto  - Generate Python code from proto files"
 	@echo "  make init-db         - Initialize database"
-	@echo "  make load-data       - Load sample data"
+	@echo "  make load-data FILE=\"data/sample_jokes.json\" - Load data from JSON file"
 	@echo "  make start           - Start the gRPC server"
 	@echo ""
 	@echo "  make client QUERY=\"joke about science\" - Run client with a query"
@@ -67,9 +67,13 @@ init-db:
 	mkdir -p chroma_db
 	poetry run python -m app.main init-database
 
-# Load sample data
+# Load data from specified JSON file
 load-data:
-	poetry run python -m app.utils.data_loader data/sample_jokes.json
+	@if [ -z "$(FILE)" ]; then \
+		echo "Please provide a file using FILE=..."; \
+		exit 1; \
+	fi
+	poetry run python -m app.utils.data_loader "$(FILE)"
 
 # Start the full server
 start:
