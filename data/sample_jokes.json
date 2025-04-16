@@ -1,0 +1,52 @@
+[
+  {
+    "text": "Why did the chicken cross the road? To get to the other side!",
+    "category": "classic",
+    "tags": ["animals", "classic", "short"]
+  },
+  {
+    "text": "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+    "category": "pun",
+    "tags": ["pun", "one-liner", "appearance"]
+  },
+  {
+    "text": "What do you call a fake noodle? An impasta!",
+    "category": "pun",
+    "tags": ["pun", "food", "short"]
+  },
+  {
+    "text": "How many software engineers does it take to change a light bulb? None, that's a hardware problem.",
+    "category": "professional",
+    "tags": ["tech", "programming", "profession"]
+  },
+  {
+    "text": "Why don't scientists trust atoms? Because they make up everything!",
+    "category": "science",
+    "tags": ["science", "pun", "short"]
+  },
+  {
+    "text": "I'm reading a book on anti-gravity. It's impossible to put down!",
+    "category": "science",
+    "tags": ["science", "pun", "physics"]
+  },
+  {
+    "text": "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.",
+    "category": "science",
+    "tags": ["math", "pun", "wordplay"]
+  },
+  {
+    "text": "Why do programmers prefer dark mode? Because light attracts bugs!",
+    "category": "professional",
+    "tags": ["tech", "programming", "dark humor"]
+  },
+  {
+    "text": "Why was the JavaScript developer sad? Because he didn't Node how to Express himself.",
+    "category": "professional",
+    "tags": ["tech", "programming", "javascript"]
+  },
+  {
+    "text": "Why couldn't the bicycle stand up by itself? It was two tired!",
+    "category": "pun",
+    "tags": ["pun", "transportation", "short"]
+  }
+]

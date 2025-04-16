@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package joke;
+
+service JokeService {
+  // Get a joke based on a search query and context
+  rpc GetJoke (JokeRequest) returns (JokeResponse) {}
+  
+  // Get multiple jokes based on a search query and context
+  rpc GetJokes (JokeRequest) returns (JokesResponse) {}
+  
+  // Record user feedback for a joke (like/dislike)
+  rpc RecordFeedback (FeedbackRequest) returns (FeedbackResponse) {}
+  
+  // Add a new joke to the database
+  rpc AddJoke (AddJokeRequest) returns (JokeResponse) {}
+}
+
+message JokeRequest {
+  string query = 1;
+  optional string context = 2; // Additional context after clarification
+  optional int32 max_results = 3; // Max number of jokes to return (for GetJokes)
+}
+
+message JokeResponse {
+  string id = 1;
+  string text = 2;
+  string category = 3; 
+  repeated string tags = 4;
+  float relevance_score = 5;
+  bool is_clarification_needed = 6; // True if query is too ambiguous
+  optional string clarification_prompt = 7; // Suggested clarification question
+}
+
+message JokesResponse {
+  repeated JokeResponse jokes = 1;
+}
+
+message FeedbackRequest {
+  string joke_id = 1;
+  bool liked = 2;
+  optional string feedback_text = 3; // Optional text feedback
+}
+
+message FeedbackResponse {
+  bool success = 1;
+  optional string message = 2;
+}
+
+message AddJokeRequest {
+  string text = 1;
+  string category = 2;
+  repeated string tags = 3;
+  optional string source = 4;
+}

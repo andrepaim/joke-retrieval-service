@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: joke_service_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=joke_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: joke_service_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=joke_service
+      - GRPC_HOST=0.0.0.0
+      - GRPC_PORT=50051
+    ports:
+      - "50051:50051"  # gRPC
+    command: >
+      sh -c "python -m app.main init-database &&
+             python -m app.utils.data_loader data/sample_jokes.json &&
+             python -m app.main start-server"
+    volumes:
+      - ./:/app
+      - poetry_cache:/root/.cache/pypoetry
+
+volumes:
+  postgres_data:
+  poetry_cache:
