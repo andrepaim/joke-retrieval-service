@@ -9,6 +9,7 @@ A Python gRPC service for retrieving jokes based on vector similarity search.
 - PostgreSQL database for relational data storage with vector search capabilities
 - User feedback collection to improve joke recommendations
 - Clarification prompts for ambiguous queries
+- Sample joke data included for immediate testing
 
 ## Architecture
 
@@ -36,7 +37,7 @@ joke-retrieval-service/
 ├── data/               # Sample data
 ├── proto/              # Protocol Buffer definitions
 ├── tests/              # Unit and integration tests
-├── .env.example        # Environment variables example
+├── .env.example        # Environment variables example (rename to .env)
 ├── docker-compose.yml  # Docker Compose configuration
 ├── Dockerfile          # Docker configuration
 ├── Makefile            # Task automation
@@ -62,7 +63,7 @@ The fastest way to get started is using the setup script:
 git clone https://github.com/your-username/joke-retrieval-service.git
 cd joke-retrieval-service
 
-# Run the setup script
+# Run the setup script (this handles all setup steps including database setup)
 ./setup.sh
 
 # Start the server
@@ -71,6 +72,15 @@ make start
 # In another terminal, test with a client request
 make client QUERY="programming joke"
 ```
+
+The setup script will:
+- Install Poetry if not found
+- Install dependencies
+- Create .env file from .env.example
+- Generate gRPC code
+- Set up PostgreSQL with pgvector extension
+- Initialize the database
+- Load sample data from data/puns.json
 
 ### Installation Options
 
@@ -98,7 +108,7 @@ The project includes a Makefile with all common commands:
    ```
    make init-db
    make generate-proto
-   make load-data
+   make load-data FILE="data/puns.json"
    ```
 
 #### Using Poetry Directly
@@ -136,7 +146,7 @@ The project includes a Makefile with all common commands:
 
 7. Load sample data:
    ```
-   poetry run python -m app.utils.data_loader data/sample_jokes.json
+   poetry run python -m app.utils.data_loader data/puns.json
    ```
 
 #### Using Docker
@@ -157,7 +167,7 @@ The project includes a Makefile with all common commands:
    docker-compose up --build
    ```
 
-This will set up PostgreSQL with the pgvector extension, initialize the database, load sample data, and start the service.
+This will set up PostgreSQL with the pgvector extension, initialize the database, load sample data, and start the service. Note that you'll need to ensure the PostgreSQL server is accessible with the credentials specified in your .env file or docker-compose.yml.
 
 ### Running the Service
 
@@ -199,14 +209,9 @@ make test-cov         # Run tests with coverage
 # Application
 make generate-proto   # Generate Python code from proto files
 make init-db          # Initialize database
-make load-data        # Load sample data
+make load-data FILE="data/puns.json"  # Load sample data
 make start            # Start the gRPC server
 make client QUERY="..." # Run client with a query
-
-# Database Migrations
-make migrations MESSAGE="Add field"  # Create a new migration
-make migrate-up       # Apply migrations
-make migrate-down     # Roll back one migration
 
 # Docker
 make docker-build     # Build Docker images
@@ -218,6 +223,8 @@ make docker-shell     # Access shell in app container
 # Setup
 make setup            # Run the setup script
 ```
+
+Note: The Makefile requires specifying the FILE parameter for the load-data command.
 
 ## Usage
 
@@ -244,6 +251,8 @@ make client QUERY="programming joke"
 poetry run python -m app.utils.grpc_client get "programming joke"
 poetry run python -m app.utils.grpc_client multi "science joke" --max 3
 poetry run python -m app.utils.grpc_client feedback 123 --liked
+
+# Make sure the server is running before using the client
 ```
 
 ## Development
@@ -289,10 +298,16 @@ make lint
 
 For development with Docker:
 ```
-make docker-up
-make docker-logs
-make docker-shell
+make docker-up     # Start containers in the background
+make docker-logs   # View logs
+make docker-shell  # Get a shell in the app container
 ```
+
+Note that the Docker setup automatically:
+1. Starts a PostgreSQL container with pgvector extension
+2. Initializes the database
+3. Loads sample joke data
+4. Starts the gRPC server
 
 ## License
 
