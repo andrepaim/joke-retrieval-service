@@ -1,6 +1,6 @@
 # Joke Retrieval Service
 
-A Python gRPC service for retrieving jokes based on vector similarity search.
+A Python service for retrieving jokes based on vector similarity search, with both gRPC and MCP (Model Context Protocol) support for AI assistants.
 
 ## Features
 
