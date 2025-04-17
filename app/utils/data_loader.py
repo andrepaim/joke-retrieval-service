@@ -60,20 +60,12 @@ def import_jokes(json_file: str, regenerate_embeddings: bool = True) -> None:
                 
                 # Regenerate embedding if requested
                 if regenerate_embeddings:
-                    # Delete old embedding if it exists in Chroma
-                    if existing_joke.embedding_id:
-                        try:
-                            embedding_service.joke_collection.delete(ids=[existing_joke.embedding_id])
-                        except Exception as e:
-                            logger.warning(f"Could not delete old embedding: {e}")
-                    
-                    # Create new embedding in Chroma
-                    embedding_id = embedding_service.add_joke_to_chroma(
+                    # Create new embedding directly in the joke record
+                    embedding_service.add_joke_embedding(
+                        db=db,
                         joke_id=existing_joke.id,
-                        text=existing_joke.text,
-                        metadata={"category": existing_joke.category}
+                        text=existing_joke.text
                     )
-                    existing_joke.embedding_id = embedding_id
                 
                 # Update tags
                 if "tags" in joke_data:
@@ -103,13 +95,9 @@ def import_jokes(json_file: str, regenerate_embeddings: bool = True) -> None:
                 db.add(joke)
                 db.flush()
                 
-                # Now add to Chroma and store the document ID
-                embedding_id = embedding_service.add_joke_to_chroma(
-                    joke_id=joke.id,
-                    text=joke_data["text"],
-                    metadata={"category": joke_data.get("category", "general")}
-                )
-                joke.embedding_id = embedding_id
+                # Create embedding
+                embedding = embedding_service.create_embedding(joke_data["text"])
+                joke.embedding = embedding.tolist()
                 
                 # Add tags
                 if "tags" in joke_data:

@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, Table, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from pgvector.sqlalchemy import Vector
 
-Base = declarative_base()
+from app.db.database import Base
 
 # Association table for many-to-many relationship between jokes and tags
 joke_tags = Table(
@@ -23,13 +24,18 @@ class Joke(Base):
     text = Column(String, nullable=False)
     category = Column(String, nullable=False)
     source = Column(String, nullable=True)
-    embedding_id = Column(String, nullable=True)  # Chroma document ID for this joke
+    embedding = Column(Vector(384), nullable=True)  # Vector for similarity search
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     tags = relationship("Tag", secondary=joke_tags, back_populates="jokes")
     feedback = relationship("JokeFeedback", back_populates="joke")
+    
+    # Create an index for vector similarity search
+    __table_args__ = (
+        Index('idx_joke_embedding', embedding, postgresql_using='ivfflat', postgresql_with={'lists': 100}),
+    )
 
 
 class Tag(Base):
@@ -61,7 +67,7 @@ class QueryLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     query = Column(String, nullable=False)
     context = Column(String, nullable=True)
-    embedding_id = Column(String, nullable=True)  # Chroma document ID for this query
+    embedding = Column(Vector(384), nullable=True)  # Vector for similarity search
     clarification_needed = Column(Boolean, default=False)
     selected_joke_id = Column(Integer, ForeignKey("jokes.id"), nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)

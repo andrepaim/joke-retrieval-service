@@ -73,20 +73,11 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
                 context=user_context,
                 clarification_needed=score < settings.VECTOR_SIMILARITY_THRESHOLD,
                 selected_joke_id=joke_id,
-                relevance_score=score
+                relevance_score=score,
+                embedding=query_embedding.tolist()
             )
             
-            # Save the query log to get ID
-            db.add(log_entry)
-            db.flush()
-                
-            # Add to Chroma and store the document ID
-            embedding_id = self.embedding_service.add_query_to_chroma(
-                query_id=log_entry.id,
-                text=query_text,
-                metadata={"selected_joke_id": joke_id}
-            )
-            log_entry.embedding_id = embedding_id
+            # Save the query log
             db.add(log_entry)
             db.commit()
             
@@ -203,20 +194,11 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
                 context=user_context,
                 clarification_needed=any(j.is_clarification_needed for j in joke_responses),
                 selected_joke_id=jokes[0].id if jokes else None,
-                relevance_score=id_to_score.get(jokes[0].id, 0.0) if jokes else 0.0
+                relevance_score=id_to_score.get(jokes[0].id, 0.0) if jokes else 0.0,
+                embedding=query_embedding.tolist()
             )
             
-            # Save the query log to get ID
-            db.add(log_entry)
-            db.flush()
-                
-            # Add to Chroma and store the document ID
-            embedding_id = self.embedding_service.add_query_to_chroma(
-                query_id=log_entry.id,
-                text=query_text,
-                metadata={"selected_joke_id": jokes[0].id if jokes else None}
-            )
-            log_entry.embedding_id = embedding_id
+            # Save the query log
             db.add(log_entry)
             db.commit()
             
@@ -310,13 +292,9 @@ class JokeServicer(pb2_grpc.JokeServiceServicer):
             db.add(joke)
             db.flush()
             
-            # Now add to Chroma and store the document ID
-            embedding_id = self.embedding_service.add_joke_to_chroma(
-                joke_id=joke.id,
-                text=text,
-                metadata={"category": category}
-            )
-            joke.embedding_id = embedding_id
+            # Generate and store embedding directly in the joke
+            embedding = self.embedding_service.create_embedding(text)
+            joke.embedding = embedding.tolist()
             
             # Handle tags
             for tag_name in tag_names:

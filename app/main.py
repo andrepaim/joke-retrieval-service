@@ -8,7 +8,7 @@ import typer
 
 from app.api.grpc_server import serve as start_grpc_server
 from app.core.config import settings
-from app.db.database import engine
+from app.db.database import engine, setup_vector_extension
 from app.models.joke import Base
 
 # Configure logging
@@ -25,11 +25,14 @@ app = typer.Typer()
 
 
 def init_db() -> None:
-    """Initialize the database with tables."""
+    """Initialize the database with tables and vector extension."""
     try:
+        # Set up pgvector extension
+        setup_vector_extension()
+        
         # Create tables
         Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created")
+        logger.info("Database tables and vector extension created")
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
         raise
