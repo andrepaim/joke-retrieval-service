@@ -111,26 +111,25 @@ class EmbeddingService:
             
             # Generate embedding from text if needed
             if query_embedding is None:
-                query_embedding = self.create_embedding(query_text)
+                query_embedding = self.create_embedding(query_text)       
             
-            # Convert numpy array to list for database query
+            # Convert numpy array to PostgreSQL vector format
             embedding_list = query_embedding.tolist()
+            embedding_str = "[" + ",".join(map(str, embedding_list)) + "]"
             
             # Query jokes with cosine similarity
             # Using raw SQL with text() for pgvector functions
             query = select(
                 Joke.id,
-                text("(embedding <=> :embedding) * -1 + 1 AS similarity")
-            ).params(
-                embedding=embedding_list
+                text(f"(embedding <=> '{embedding_str}') * -1 + 1 AS similarity")
             ).order_by(
                 text("similarity DESC")
             ).limit(k)
             
             results = db.execute(query).fetchall()
-            
+
             # Process results - cosine similarity already provides values between 0-1
-            return [(result.id, float(result.similarity)) for result in results]
+            return [(result[0], float(result[1])) for result in results]
             
         except Exception as e:
             logger.error(f"Error in vector search: {e}")

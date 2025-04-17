@@ -1,7 +1,7 @@
 from typing import Generator
 import logging
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -42,7 +42,7 @@ def setup_vector_extension() -> None:
         # Create a raw connection
         with engine.connect() as conn:
             # Create the extension if it doesn't exist
-            conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
             conn.commit()
         
         logger.info("Successfully set up pgvector extension")

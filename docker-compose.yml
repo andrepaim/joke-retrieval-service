@@ -35,7 +35,7 @@ services:
       - "50051:50051"  # gRPC
     command: >
       sh -c "python -m app.main init-database &&
-             python -m app.utils.data_loader datad/
+             python -m app.utils.data_loader data/puns.json &&
              python -m app.main start-server"
     volumes:
       - ./:/app
