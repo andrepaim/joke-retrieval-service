@@ -257,19 +257,6 @@ poetry run python -m app.utils.grpc_client feedback 123 --liked
 
 ## Development
 
-### Adding Dependencies
-
-To add a runtime dependency:
-```
-poetry add package-name
-```
-
-To add a development dependency:
-```
-poetry add --group dev package-name
-```
-
-
 ### Testing
 
 Run tests with:
