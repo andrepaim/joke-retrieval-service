@@ -328,7 +328,9 @@ def get_random_joke() -> Dict[str, Any]:
 # Function to start the server
 def start_mcp_server(host: str = "0.0.0.0", port: int = 8080):
     """Start the FastMCP server."""
-    from uvicorn import run
-
-    app = mcp.create_app()
-    run(app, host=host, port=port)
+    # FastMCP 2.x uses Starlette app with SSE endpoints
+    # Get the Starlette app and run it with uvicorn
+    import uvicorn
+    
+    app = mcp.sse_app()
+    uvicorn.run(app, host=host, port=port)
