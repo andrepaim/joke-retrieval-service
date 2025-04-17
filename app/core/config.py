@@ -7,23 +7,23 @@ from pydantic import BaseSettings, PostgresDsn, validator
 class Settings(BaseSettings):
     # Service Settings
     PROJECT_NAME: str = "Joke Retrieval Service"
-    
+
     # Database
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "joke_service")
     DATABASE_URI: Optional[PostgresDsn] = None
-    
+
     # Vector search
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"  # Default SentenceTransformers model
     EMBEDDING_DIMENSION: int = 384  # Dimension of the embedding vectors for the model
     VECTOR_SIMILARITY_THRESHOLD: float = 0.05
-    
+
     # gRPC server
     GRPC_HOST: str = os.getenv("GRPC_HOST", "0.0.0.0")
     GRPC_PORT: int = int(os.getenv("GRPC_PORT", 50051))
-    
+
     @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):

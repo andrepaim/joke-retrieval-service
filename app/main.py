@@ -6,8 +6,8 @@ from typing import Optional
 
 import typer
 
-from app.api.grpc_server import serve as start_grpc_server
 from app.api.fastmcp_server import start_mcp_server
+from app.api.grpc_server import serve as start_grpc_server
 from app.core.config import settings
 from app.db.database import engine, setup_vector_extension
 from app.models.joke import Base
@@ -16,7 +16,7 @@ from app.models.joke import Base
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def init_db() -> None:
     try:
         # Set up pgvector extension
         setup_vector_extension()
-        
+
         # Create tables
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables and vector extension created")
@@ -41,16 +41,20 @@ def init_db() -> None:
 
 @app.command()
 def start_server(
-    init_database: bool = typer.Option(False, "--init-db", help="Initialize the database"),
-    server_type: str = typer.Option("grpc", "--type", "-t", help="Server type: 'grpc' or 'mcp'"),
+    init_database: bool = typer.Option(
+        False, "--init-db", help="Initialize the database"
+    ),
+    server_type: str = typer.Option(
+        "grpc", "--type", "-t", help="Server type: 'grpc' or 'mcp'"
+    ),
     host: str = typer.Option("0.0.0.0", "--host", help="Host to bind the server to"),
-    port: int = typer.Option(50051, "--port", "-p", help="Port to bind the server to")
+    port: int = typer.Option(50051, "--port", "-p", help="Port to bind the server to"),
 ) -> None:
     """Start the joke retrieval service server."""
     if init_database:
         logger.info("Initializing database...")
         init_db()
-    
+
     if server_type.lower() == "mcp":
         logger.info(f"Starting FastMCP server on {host}:{port}...")
         start_mcp_server(host=host, port=port)
@@ -72,11 +76,11 @@ def generate_proto() -> None:
     try:
         proto_dir = os.path.join(os.getcwd(), "proto")
         proto_file = os.path.join(proto_dir, "joke_service.proto")
-        
+
         if not os.path.exists(proto_file):
             logger.error(f"Proto file not found: {proto_file}")
             return
-        
+
         # Generate Python code from proto
         logger.info(f"Generating Python code from {proto_file}...")
         cmd = f"python -m grpc_tools.protoc -I {proto_dir} --python_out=. --grpc_python_out=. {proto_file}"

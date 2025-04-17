@@ -1,9 +1,9 @@
-from typing import Generator
 import logging
+from typing import Generator
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
 
@@ -22,7 +22,7 @@ Base = declarative_base()
 def get_db() -> Generator[Session, None, None]:
     """
     Dependency for database session.
-    
+
     Yields:
         Session: Database session
     """
@@ -44,7 +44,7 @@ def setup_vector_extension() -> None:
             # Create the extension if it doesn't exist
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
             conn.commit()
-        
+
         logger.info("Successfully set up pgvector extension")
     except Exception as e:
         logger.error(f"Error setting up pgvector extension: {e}")
