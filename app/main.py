@@ -7,6 +7,7 @@ from typing import Optional
 import typer
 
 from app.api.grpc_server import serve as start_grpc_server
+from app.api.fastmcp_server import start_mcp_server
 from app.core.config import settings
 from app.db.database import engine, setup_vector_extension
 from app.models.joke import Base
@@ -40,15 +41,22 @@ def init_db() -> None:
 
 @app.command()
 def start_server(
-    init_database: bool = typer.Option(False, "--init-db", help="Initialize the database")
+    init_database: bool = typer.Option(False, "--init-db", help="Initialize the database"),
+    server_type: str = typer.Option("grpc", "--type", "-t", help="Server type: 'grpc' or 'mcp'"),
+    host: str = typer.Option("0.0.0.0", "--host", help="Host to bind the server to"),
+    port: int = typer.Option(50051, "--port", "-p", help="Port to bind the server to")
 ) -> None:
-    """Start the joke retrieval gRPC service."""
+    """Start the joke retrieval service server."""
     if init_database:
         logger.info("Initializing database...")
         init_db()
     
-    logger.info("Starting gRPC server...")
-    start_grpc_server()
+    if server_type.lower() == "mcp":
+        logger.info(f"Starting FastMCP server on {host}:{port}...")
+        start_mcp_server(host=host, port=port)
+    else:
+        logger.info("Starting gRPC server...")
+        start_grpc_server()
 
 
 @app.command()

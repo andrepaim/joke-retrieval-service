@@ -5,6 +5,7 @@ A Python gRPC service for retrieving jokes based on vector similarity search.
 ## Features
 
 - gRPC API for joke retrieval and feedback
+- FastMCP server implementation for Model Context Protocol (MCP) support
 - Vector embedding and similarity search using sentence-transformers and PostgreSQL pgvector
 - PostgreSQL database for relational data storage with vector search capabilities
 - User feedback collection to improve joke recommendations
@@ -15,8 +16,9 @@ A Python gRPC service for retrieving jokes based on vector similarity search.
 
 This service uses:
 
-- **Python 3.9+** as the core language
+- **Python 3.10+** as the core language
 - **gRPC** for API communication
+- **FastMCP** for Model Context Protocol (MCP) server implementation
 - **sentence-transformers** for text embeddings
 - **PostgreSQL** with **pgvector** extension for vector similarity search
 - **SQLAlchemy** with pgvector for relational data and vector storage
@@ -29,11 +31,15 @@ This service uses:
 ```
 joke-retrieval-service/
 ├── app/                # Main application code
-│   ├── api/            # gRPC server implementation
+│   ├── api/            # Server implementations
+│   │   ├── grpc_server.py     # gRPC server implementation
+│   │   └── fastmcp_server.py  # FastMCP server implementation
 │   ├── core/           # Core functionality (config, embeddings)
 │   ├── db/             # Database connection and utilities
 │   ├── models/         # SQLAlchemy models
 │   └── utils/          # Utility functions
+│       ├── grpc_client.py     # gRPC client
+│       └── mcp_client.py      # MCP client 
 ├── data/               # Sample data
 ├── proto/              # Protocol Buffer definitions
 ├── tests/              # Unit and integration tests
@@ -49,7 +55,7 @@ joke-retrieval-service/
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - Poetry (dependency management)
 - PostgreSQL with pgvector extension
 - Make (optional, for running commands)
@@ -66,11 +72,18 @@ cd joke-retrieval-service
 # Run the setup script (this handles all setup steps including database setup)
 ./setup.sh
 
-# Start the server
-make start
+# Start the gRPC server
+make start-grpc
+
+# Or start the FastMCP server
+make start-mcp
 
 # In another terminal, test with a client request
+# For gRPC:
 make client QUERY="programming joke"
+
+# For MCP:
+make mcp-client QUERY="programming joke"
 ```
 
 The setup script will:
@@ -173,14 +186,20 @@ This will set up PostgreSQL with the pgvector extension, initialize the database
 
 #### With Make
 
-```
-make start        # Start the gRPC server
+```bash
+make start        # Start the default gRPC server
+make start-grpc   # Start the gRPC server explicitly
+make start-mcp    # Start the FastMCP server
 ```
 
 #### With Poetry
 
-```
+```bash
+# Start gRPC server
 poetry run python -m app.main start-server
+
+# Start FastMCP server
+poetry run python -m app.main start-server --type mcp --port 8080
 ```
 
 #### With Docker
@@ -228,7 +247,11 @@ Note: The Makefile requires specifying the FILE parameter for the load-data comm
 
 ## Usage
 
-### gRPC API
+### API Options
+
+The service provides two API options:
+
+#### gRPC API
 
 The service provides the following gRPC methods:
 
@@ -239,11 +262,27 @@ The service provides the following gRPC methods:
 
 See `proto/joke_service.proto` for detailed API specifications.
 
-### Example Client
+#### FastMCP API
 
-The project includes an example client for interacting with the gRPC service:
+The service provides the following MCP tools and resources:
 
-```
+- Tools:
+  - `get_joke`: Get a single joke based on query
+  - `get_jokes`: Get multiple jokes based on query
+  - `record_feedback`: Record user feedback for a joke
+  - `add_joke`: Add a new joke to the database
+  
+- Resources:
+  - `jokes://{joke_id}`: Get a specific joke by ID
+  - `jokes://random`: Get a random joke
+
+### Example Clients
+
+The project includes example clients for interacting with both API options:
+
+#### gRPC Client
+
+```bash
 # Using Make
 make client QUERY="programming joke"
 
@@ -251,9 +290,23 @@ make client QUERY="programming joke"
 poetry run python -m app.utils.grpc_client get "programming joke"
 poetry run python -m app.utils.grpc_client multi "science joke" --max 3
 poetry run python -m app.utils.grpc_client feedback 123 --liked
-
-# Make sure the server is running before using the client
 ```
+
+#### MCP Client
+
+```bash
+# Using Make
+make mcp-client QUERY="programming joke"
+
+# Or directly with Poetry
+poetry run python -m app.utils.mcp_client get "programming joke"
+poetry run python -m app.utils.mcp_client get --multiple "science joke" --limit 3
+poetry run python -m app.utils.mcp_client rate 123 --liked
+poetry run python -m app.utils.mcp_client random
+poetry run python -m app.utils.mcp_client get-by-id 42
+```
+
+Make sure the appropriate server is running before using the clients.
 
 ## Development
 
