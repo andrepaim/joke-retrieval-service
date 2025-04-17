@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app:
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    environment:
+      - PYTHONPATH=/app
+    # Overrides default command so that container doesn't exit and keeps running
