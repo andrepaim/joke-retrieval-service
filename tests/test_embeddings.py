@@ -67,22 +67,12 @@ class TestEmbeddingService(unittest.TestCase):
         mock_session_local.return_value = mock_session
 
         # Mock query execution results
-        mock_result1 = MagicMock()
-        mock_result1.id = 1
-        mock_result1.similarity = 0.95
-
-        mock_result2 = MagicMock()
-        mock_result2.id = 2
-        mock_result2.similarity = 0.85
-
-        mock_result3 = MagicMock()
-        mock_result3.id = 3
-        mock_result3.similarity = 0.75
-
+        # Instead of using complex mocks, use simple tuples that match what the database would return
+        # Result should be a tuple of (id, similarity)
         mock_session.execute.return_value.fetchall.return_value = [
-            mock_result1,
-            mock_result2,
-            mock_result3,
+            (1, 0.95),
+            (2, 0.85),
+            (3, 0.75),
         ]
 
         # Search for jokes using text

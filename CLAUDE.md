@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## MCP Memory Instructions
+- At the beginning of each session, query the MCP memory server to get context about the project structure and code organization
+- After making any significant changes to the project, update the memory with information about the changes
+- Use the memory to guide your work and maintain continuity between sessions
+- Command to update memory: `dispatch_agent "Search through project files and create a detailed overview"`
+
 ## Quick Start
 - Run setup script: `make setup` or `./setup.sh`
 - Start server: `make start`
@@ -72,3 +78,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Avoid writing code that only aims to pass tests without proper implementation
 - Maintain high test coverage (aim for >90% line coverage)
 - Tests should be meaningful and verify actual business requirements
+
+## MCP Memory Usage Guidelines
+- When adding new features or updating existing ones, add information to the memory about the changes
+- Structure memory entities by components (API Layer, Core Components, etc.)
+- Maintain relationships between components to reflect architectural dependencies
+- Example memory queries:
+  - `mcp__memory__search_nodes` to find relevant information about specific components
+  - `mcp__memory__open_nodes` to retrieve detailed information about known entities
+  - `mcp__memory__read_graph` to understand the overall project structure
+- After making code changes, update the relevant entities with new observations
