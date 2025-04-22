@@ -103,7 +103,7 @@ mcp-client:
 		echo "Please provide a query using QUERY=..."; \
 		exit 1; \
 	fi
-	poetry run python -m app.utils.mcp_client get "$(QUERY)"
+	poetry run python -m app.utils.mcp_client get "$(QUERY)" --port 8080
 
 
 # Docker commands

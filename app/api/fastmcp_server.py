@@ -39,7 +39,11 @@ class AddJokeRequest(BaseModel):
     tags: List[str] = []
 
 
-# Initialize FastMCP
+# Initialize FastMCP with debug logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("fastmcp")
+
 mcp = FastMCP("JokeRetrievalService")
 
 
@@ -63,7 +67,7 @@ def get_joke(query: str, context: Optional[str] = None) -> JokeResponse:
     query_embedding = embedding_service.create_embedding(query_with_context)
 
     # Log the query
-    query_log = QueryLog(query_text=query, context=context, embedding=query_embedding)
+    query_log = QueryLog(query=query, context=context, embedding=query_embedding)
     db.add(query_log)
     db.commit()
 
@@ -84,7 +88,10 @@ def get_joke(query: str, context: Optional[str] = None) -> JokeResponse:
         )
 
     joke = jokes[0]
-    similarity = 1 - Joke.embedding.cosine_distance(query_embedding).scalar_value(joke)
+    # Calculate similarity differently - get the actual distance first
+    distance_expression = Joke.embedding.cosine_distance(query_embedding)
+    distance = db.scalar(db.query(distance_expression).filter(Joke.id == joke.id))
+    similarity = 1.0 - (distance if distance is not None else 0.0)
 
     # Update query log with selected joke
     query_log.selected_joke_id = joke.id
@@ -127,7 +134,7 @@ def get_jokes(
     query_embedding = embedding_service.create_embedding(query_with_context)
 
     # Log the query
-    query_log = QueryLog(query_text=query, context=context, embedding=query_embedding)
+    query_log = QueryLog(query=query, context=context, embedding=query_embedding)
     db.add(query_log)
     db.commit()
 
@@ -152,9 +159,11 @@ def get_jokes(
     # Calculate similarity scores and convert to response models
     responses = []
     for joke in jokes:
-        similarity = 1 - Joke.embedding.cosine_distance(query_embedding).scalar_value(
-            joke
-        )
+        # Calculate similarity differently - get the actual distance first
+        distance_expression = Joke.embedding.cosine_distance(query_embedding)
+        distance = db.scalar(db.query(distance_expression).filter(Joke.id == joke.id))
+        similarity = 1.0 - (distance if distance is not None else 0.0)
+        
         responses.append(
             JokeResponse(
                 id=joke.id,
@@ -306,8 +315,9 @@ def get_random_joke() -> Dict[str, Any]:
     """
     db = next(get_db())
 
-    # Get random joke by ordering by ID in random order
-    joke = db.query(Joke).order_by(desc("random()")).first()
+    from sqlalchemy.sql import text
+    # Get random joke using proper SQLAlchemy text() for random()
+    joke = db.query(Joke).order_by(text("random()")).first()
 
     if not joke:
         db.close()
@@ -332,5 +342,38 @@ def start_mcp_server(host: str = "0.0.0.0", port: int = 8080):
     # Get the Starlette app and run it with uvicorn
     import uvicorn
     
+    logger = logging.getLogger("fastmcp_server")
+    logger.info("Initializing FastMCP server")
+    
     app = mcp.sse_app()
+    logger.info("FastMCP SSE app created")
+    
+    # Add CORS middleware to allow connections from any origin
+    from starlette.middleware.cors import CORSMiddleware
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # Configure routes for debugging
+    # For Starlette app, we need to use its Route system
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
+    
+    async def root(request):
+        return JSONResponse({"message": "FastMCP Joke Service API", "endpoints": ["/sse", "/tools"]})
+    
+    async def list_tools(request):
+        return JSONResponse({"tools": [t.__name__ for t in mcp.tools], 
+                             "resources": [r for r in mcp.resources]})
+    
+    # Add our routes to the app
+    app.routes.append(Route("/", root))
+    app.routes.append(Route("/tools", list_tools))
+    
+    logger.info(f"Starting FastMCP server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)
