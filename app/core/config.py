@@ -38,9 +38,6 @@ class Settings(BaseSettings):
         # Construct DSN string manually as the API changed in Pydantic v2
         return f"postgresql://{user}:{password}@{host}/{db}"
 
-    # Vector database
-    CHROMA_PERSIST_DIRECTORY: Optional[str] = "chroma_db"
-    
     model_config = {
         "case_sensitive": True,
         "env_file": ".env",

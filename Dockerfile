@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10.12-slim
 
 WORKDIR /app
 
@@ -12,10 +12,13 @@ COPY pyproject.toml poetry.lock* ./
 RUN poetry config virtualenvs.create false
 
 # Install dependencies
-RUN poetry install --no-dev
+RUN poetry install --without dev
 
 # Copy the content of the project
 COPY . .
+
+# Verify app directory exists
+RUN ls -la
 
 # Generate gRPC code if needed
 RUN python -m app.main generate-proto
