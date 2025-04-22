@@ -1,4 +1,4 @@
-.PHONY: help install clean lint format typecheck test test-cov generate-proto init-db load-data start start-grpc client docker-build docker-up docker-down docker-logs docker-shell setup
+.PHONY: help install clean lint format typecheck test test-cov generate-proto init-db load-data start start-grpc start-mcp client mcp-client docker-build docker-up docker-down docker-logs docker-shell setup
 
 # Default target executed when no arguments are given to make.
 help:
@@ -13,9 +13,12 @@ help:
 	@echo "  make generate-proto  - Generate Python code from proto files"
 	@echo "  make init-db         - Initialize database"
 	@echo "  make load-data FILE=\"data/sample_jokes.json\" - Load data from JSON file"
-	@echo "  make start           - Start the gRPC server"
+	@echo "  make start           - Start the default gRPC server"
+	@echo "  make start-grpc      - Start the gRPC server (explicit)"
+	@echo "  make start-mcp       - Start the FastMCP server"
 	@echo ""
-	@echo "  make client QUERY=\"joke about science\" - Run client with a query"
+	@echo "  make client QUERY=\"joke about science\" - Run gRPC client with a query"
+	@echo "  make mcp-client QUERY=\"joke about science\" - Run MCP client with a query"
 	@echo "  make docker-build    - Build Docker images"
 	@echo "  make docker-up       - Start Docker containers"
 	@echo "  make docker-down     - Stop Docker containers"
@@ -74,18 +77,33 @@ load-data:
 	fi
 	poetry run python -m app.utils.data_loader "$(FILE)"
 
-# Start the full server
+# Start the default server (gRPC)
 start:
 	poetry run python -m app.main start-server
 
+# Start the gRPC server explicitly
+start-grpc:
+	poetry run python -m app.main start-server --type grpc
 
-# Run client with a query
+# Start the FastMCP server
+start-mcp:
+	poetry run python -m app.main start-server --type mcp --port 8080
+
+# Run gRPC client with a query
 client:
 	@if [ -z "$(QUERY)" ]; then \
 		echo "Please provide a query using QUERY=..."; \
 		exit 1; \
 	fi
 	poetry run python -m app.utils.grpc_client get "$(QUERY)"
+
+# Run MCP client with a query
+mcp-client:
+	@if [ -z "$(QUERY)" ]; then \
+		echo "Please provide a query using QUERY=..."; \
+		exit 1; \
+	fi
+	poetry run python -m app.utils.mcp_client get "$(QUERY)" --port 8080
 
 
 # Docker commands
