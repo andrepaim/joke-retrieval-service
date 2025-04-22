@@ -41,6 +41,7 @@ class AddJokeRequest(BaseModel):
 
 # Initialize FastMCP with debug logging
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("fastmcp")
 
@@ -163,7 +164,7 @@ def get_jokes(
         distance_expression = Joke.embedding.cosine_distance(query_embedding)
         distance = db.scalar(db.query(distance_expression).filter(Joke.id == joke.id))
         similarity = 1.0 - (distance if distance is not None else 0.0)
-        
+
         responses.append(
             JokeResponse(
                 id=joke.id,
@@ -316,6 +317,7 @@ def get_random_joke() -> Dict[str, Any]:
     db = next(get_db())
 
     from sqlalchemy.sql import text
+
     # Get random joke using proper SQLAlchemy text() for random()
     joke = db.query(Joke).order_by(text("random()")).first()
 
@@ -341,16 +343,16 @@ def start_mcp_server(host: str = "0.0.0.0", port: int = 8080):
     # FastMCP 2.x uses Starlette app with SSE endpoints
     # Get the Starlette app and run it with uvicorn
     import uvicorn
-    
+
     logger = logging.getLogger("fastmcp_server")
     logger.info("Initializing FastMCP server")
-    
+
     app = mcp.sse_app()
     logger.info("FastMCP SSE app created")
-    
+
     # Add CORS middleware to allow connections from any origin
     from starlette.middleware.cors import CORSMiddleware
-    
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -358,22 +360,28 @@ def start_mcp_server(host: str = "0.0.0.0", port: int = 8080):
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Configure routes for debugging
     # For Starlette app, we need to use its Route system
     from starlette.responses import JSONResponse
     from starlette.routing import Route
-    
+
     async def root(request):
-        return JSONResponse({"message": "FastMCP Joke Service API", "endpoints": ["/sse", "/tools"]})
-    
+        return JSONResponse(
+            {"message": "FastMCP Joke Service API", "endpoints": ["/sse", "/tools"]}
+        )
+
     async def list_tools(request):
-        return JSONResponse({"tools": [t.__name__ for t in mcp.tools], 
-                             "resources": [r for r in mcp.resources]})
-    
+        return JSONResponse(
+            {
+                "tools": [t.__name__ for t in mcp.tools],
+                "resources": [r for r in mcp.resources],
+            }
+        )
+
     # Add our routes to the app
     app.routes.append(Route("/", root))
     app.routes.append(Route("/tools", list_tools))
-    
+
     logger.info(f"Starting FastMCP server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)

@@ -43,15 +43,17 @@ def get(
             try:
                 if multiple:
                     result = await client.call_tool(
-                        "get_jokes", {"query": query, "limit": limit, "context": context}
+                        "get_jokes",
+                        {"query": query, "limit": limit, "context": context},
                     )
                     # Process the results
                     # Handle TextContent objects from FastMCP
                     if isinstance(result, list) and len(result) > 0:
                         import json
+
                         # In this case, we receive a single TextContent with an array of jokes
                         text_content = result[0]
-                        if hasattr(text_content, 'text'):
+                        if hasattr(text_content, "text"):
                             try:
                                 # This is an array of jokes in JSON
                                 jokes_data = json.loads(text_content.text)
@@ -59,17 +61,25 @@ def get(
                                     for i, joke in enumerate(jokes_data, 1):
                                         typer.echo(f"\n{i}. {joke['text']}")
                                         if joke.get("category"):
-                                            typer.echo(f"   Category: {joke['category']}")
+                                            typer.echo(
+                                                f"   Category: {joke['category']}"
+                                            )
                                         if joke.get("similarity_score"):
-                                            typer.echo(f"   Similarity: {joke['similarity_score']:.2f}")
+                                            typer.echo(
+                                                f"   Similarity: {joke['similarity_score']:.2f}"
+                                            )
                                         typer.echo(f"   ID: {joke['id']}")
                                 else:
-                                    typer.echo(f"Unexpected response format - not a list: {jokes_data}")
+                                    typer.echo(
+                                        f"Unexpected response format - not a list: {jokes_data}"
+                                    )
                             except json.JSONDecodeError as e:
                                 typer.echo(f"Error parsing jokes: {e}")
                                 typer.echo(f"Raw response: {text_content.text}")
                         else:
-                            typer.echo(f"Unexpected response format - no text attribute: {result}")
+                            typer.echo(
+                                f"Unexpected response format - no text attribute: {result}"
+                            )
                     else:
                         typer.echo("No jokes found or unexpected response format")
                 else:
@@ -80,8 +90,9 @@ def get(
                     if isinstance(result, list) and len(result) > 0:
                         # For TextContent objects, parse the JSON from the text property
                         import json
+
                         text_content = result[0]
-                        if hasattr(text_content, 'text'):
+                        if hasattr(text_content, "text"):
                             # Parse the JSON from the text property
                             try:
                                 joke_data = json.loads(text_content.text)
@@ -89,7 +100,9 @@ def get(
                                 if joke_data.get("category"):
                                     typer.echo(f"Category: {joke_data['category']}")
                                 if joke_data.get("similarity_score"):
-                                    typer.echo(f"Similarity: {joke_data['similarity_score']:.2f}")
+                                    typer.echo(
+                                        f"Similarity: {joke_data['similarity_score']:.2f}"
+                                    )
                                 typer.echo(f"ID: {joke_data['id']}")
                             except json.JSONDecodeError as e:
                                 typer.echo(f"Error parsing response: {e}")
@@ -100,6 +113,7 @@ def get(
                         typer.echo("No jokes found or unexpected response format")
             except Exception as e:
                 import traceback
+
                 typer.echo(f"Error: {e}", err=True)
                 typer.echo(f"Detail: {traceback.format_exc()}", err=True)
 
@@ -126,17 +140,26 @@ def rate(
             try:
                 result = await client.call_tool(
                     "record_feedback",
-                    {"feedback": {"joke_id": joke_id, "liked": liked, "user_id": user_id}},
+                    {
+                        "feedback": {
+                            "joke_id": joke_id,
+                            "liked": liked,
+                            "user_id": user_id,
+                        }
+                    },
                 )
-                
+
                 # Handle TextContent objects
                 if isinstance(result, list) and len(result) > 0:
                     import json
+
                     text_content = result[0]
-                    if hasattr(text_content, 'text'):
+                    if hasattr(text_content, "text"):
                         try:
                             feedback_data = json.loads(text_content.text)
-                            typer.echo(feedback_data.get("message", "Feedback recorded"))
+                            typer.echo(
+                                feedback_data.get("message", "Feedback recorded")
+                            )
                         except json.JSONDecodeError as e:
                             typer.echo(f"Error parsing response: {e}")
                             typer.echo(f"Raw response: {text_content.text}")
@@ -180,15 +203,18 @@ def add(
                         }
                     },
                 )
-                
+
                 # Handle TextContent objects
                 if isinstance(result, list) and len(result) > 0:
                     import json
+
                     text_content = result[0]
-                    if hasattr(text_content, 'text'):
+                    if hasattr(text_content, "text"):
                         try:
                             joke_data = json.loads(text_content.text)
-                            typer.echo(f"Joke added successfully with ID: {joke_data['id']}")
+                            typer.echo(
+                                f"Joke added successfully with ID: {joke_data['id']}"
+                            )
                             typer.echo(f"Text: {joke_data['text']}")
                             if joke_data.get("category"):
                                 typer.echo(f"Category: {joke_data['category']}")
@@ -222,8 +248,9 @@ def random(
                 # Handle TextContent objects
                 if isinstance(result, list) and len(result) > 0:
                     import json
+
                     text_content = result[0]
-                    if hasattr(text_content, 'text'):
+                    if hasattr(text_content, "text"):
                         try:
                             joke_data = json.loads(text_content.text)
                             typer.echo(f"\n{joke_data['text']}")
@@ -261,15 +288,16 @@ def get_by_id(
                 # Handle TextContent objects
                 if isinstance(result, list) and len(result) > 0:
                     import json
+
                     text_content = result[0]
-                    if hasattr(text_content, 'text'):
+                    if hasattr(text_content, "text"):
                         try:
                             joke_data = json.loads(text_content.text)
                             # Check for error
                             if "error" in joke_data:
                                 typer.echo(f"Error: {joke_data['error']}", err=True)
                                 return
-                                
+
                             typer.echo(f"\n{joke_data['text']}")
                             if joke_data.get("category"):
                                 typer.echo(f"Category: {joke_data['category']}")

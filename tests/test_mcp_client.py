@@ -25,18 +25,13 @@ mock_typer.Typer = MagicMock(return_value=mock_typer_app)
 sys.modules["typer"] = mock_typer
 
 # Patch asyncio.run
-patch_asyncio_run = patch("asyncio.run", new=lambda coro: asyncio.get_event_loop().run_until_complete(coro))
+patch_asyncio_run = patch(
+    "asyncio.run", new=lambda coro: asyncio.get_event_loop().run_until_complete(coro)
+)
 patch_asyncio_run.start()
 
 # Import client functions after all mocks are setup
-from app.utils.mcp_client import (
-    add,
-    create_client,
-    get,
-    get_by_id,
-    random,
-    rate,
-)
+from app.utils.mcp_client import add, create_client, get, get_by_id, random, rate
 
 
 class TestMCPClient(unittest.TestCase):
@@ -108,7 +103,9 @@ class TestMCPClient(unittest.TestCase):
     def test_exception_handling(self):
         """Test handling exceptions in client calls."""
         # Set up mock to raise an exception
-        sys.modules["fastmcp.client"].Client().call_tool.side_effect = Exception("Connection error")
+        sys.modules["fastmcp.client"].Client().call_tool.side_effect = Exception(
+            "Connection error"
+        )
         # Call function
         get("test query")
         # Test passes if no exceptions

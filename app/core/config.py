@@ -34,14 +34,14 @@ class Settings(BaseSettings):
         password = values.get("POSTGRES_PASSWORD", "")
         host = values.get("POSTGRES_SERVER", "")
         db = values.get("POSTGRES_DB", "")
-        
+
         # Construct DSN string manually as the API changed in Pydantic v2
         return f"postgresql://{user}:{password}@{host}/{db}"
 
     model_config = {
         "case_sensitive": True,
         "env_file": ".env",
-        "extra": "ignore"  # Allow extra fields
+        "extra": "ignore",  # Allow extra fields
     }
 
 
