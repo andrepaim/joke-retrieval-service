@@ -2,8 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Session Initialization
+- At the beginning of each session, check for available MCP servers using `mcp__memory__read_graph` and `mcp__jokes-db__query`
+- Always use available MCP tools whenever possible (like `mcp__jokes-db__query` for database access)
+- Review existing memory entities to understand the project context before starting work
+
 ## MCP Memory Instructions
-- At the beginning of each session, query the MCP memory server to get context about the project structure and code organization
+- After the first user query regarding the codebase, query the MCP memory server to get context about the project structure and code organization
 - After making any significant changes to the project, update the memory with information about the changes
 - Use the memory to guide your work and maintain continuity between sessions
 - Command to update memory: `dispatch_agent "Search through project files and create a detailed overview"`
